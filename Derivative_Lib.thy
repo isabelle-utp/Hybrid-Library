@@ -1,6 +1,6 @@
 section \<open> Derivatives: extra laws and tactics \<close>
 
-theory Derivative_extra
+theory Derivative_Lib
   imports
   "Differential_Dynamic_Logic.Lib"
   "HOL-Eisbach.Eisbach"

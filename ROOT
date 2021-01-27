@@ -1,4 +1,4 @@
-session "Dynamics" in "dynamics" = "Ordinary_Differential_Equations" +
+session "Hybrid-Library" in "dynamics" = "Ordinary_Differential_Equations" +
   options [document = pdf, document_output = "output", timeout = 1000]
   sessions
     "Differential_Dynamic_Logic"
