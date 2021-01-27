@@ -146,7 +146,11 @@ lemma has_vector_derivative_right_point:
   apply (auto simp add: assms)
 done
 
-method prove_vec_deriv = (simp add: has_vector_derivative_def, subst has_derivative_eq_rhs, force intro: derivative_intros; auto simp add: field_simps)
+method prove_vec_deriv = 
+  (simp add: has_vector_derivative_def, 
+   subst has_derivative_eq_rhs, 
+   force intro: derivative_intros; 
+   auto simp add: field_simps)
 
 lemma has_vector_derivative_sqrt[derivative_intros]:
   fixes f :: "real \<Rightarrow> real"    

@@ -17,15 +17,18 @@ method ode_cert =
     safe intro!: has_vector_derivative_Pair, 
   \<comment> \<open> Raise two goals, with a linking meta-variable: (1) the derivative goal, (2) a goal that
       the resulting derivative is equal to the target \<close>
-    (rule has_vector_derivative_eq_rhs,
+    (rule has_vector_derivative_eq_rhs, 
   \<comment> \<open> Recursively apply derivative introduction laws to (1) \<close>
-      (rule derivative_intros; (simp)?)+, 
+      (rule derivative_intros; (simp add: field_simps)?)+,
   \<comment> \<open> Simplify away (2) using field laws \<close>
-      simp add: field_simps)+)
+      ((simp add: field_simps)+)?)+)
 
 type_synonym 'c ODE = "real \<Rightarrow> 'c \<Rightarrow> 'c"
 
 text \<open> A simple example is the following system of ODEs for an objecting accelerating according to gravity. \<close>
+
+locale grav_test
+begin
 
 abbreviation "grav \<equiv> 9.81"
 
@@ -44,6 +47,8 @@ text \<open> Finally, we show how this solution to the ODEs can be certified. \<
 lemma 
   "(grav_sol (v\<^sub>0, h\<^sub>0) solves_ode grav_ode) T UNIV"
   by ode_cert
+
+end
 
 text \<open> More examples \<close>
 
