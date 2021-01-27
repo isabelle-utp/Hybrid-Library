@@ -2,7 +2,7 @@ section \<open> ODE Certification Tactic \<close>
 
 theory ODE_Cert
   imports 
-    Derivative_extra
+    Derivative_Lib
     "Ordinary_Differential_Equations.ODE_Analysis"
 begin
 

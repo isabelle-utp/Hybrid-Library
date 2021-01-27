@@ -1,7 +1,7 @@
 section \<open> Matrix Syntax \<close>
 
 theory Matrix_Syntax
-  imports Derivative_extra "Differential_Dynamic_Logic.Lib"
+  imports Derivative_Lib "Differential_Dynamic_Logic.Lib"
 begin
 
 text \<open> This theory introduces nice syntax for concrete matrices, in the style of MATLAB or SAGE. 
