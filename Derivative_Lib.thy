@@ -234,6 +234,21 @@ qed
 lemma frechet_derivative_const: "\<partial> (\<lambda> x. k) (at t) = (\<lambda> x. 0)"
   by (metis frechet_derivative_at has_derivative_const)
 
+lemma frechet_derivative_Pair:
+  assumes "f differentiable at t" "g differentiable at t"
+  shows "\<partial> (\<lambda>x. (f x, g x)) (at t) = (\<lambda>x. (\<partial> f (at t) x, \<partial> g (at t) x))"
+  by (metis (no_types) assms(1) assms(2) frechet_derivative_at frechet_derivative_works has_derivative_Pair)
+
+lemma frechet_derivative_split:
+  "\<partial> (\<lambda> (x, y). f x y) (at t) = \<partial> (\<lambda> p. f (fst p) (snd p)) (at t)"
+  by (simp add: case_prod_beta')
+
+lemma frechet_derivative_fst: "frechet_derivative fst (at t) = fst"
+  by (metis bounded_linear_fst bounded_linear_imp_has_derivative frechet_derivative_at)
+
+lemma frechet_derivative_snd: "frechet_derivative snd (at t) = snd"
+  by (metis bounded_linear_imp_has_derivative bounded_linear_snd frechet_derivative_at)
+
 lemma frechet_derivative_vec:
   fixes f :: "'i::finite \<Rightarrow> 'a::{real_normed_vector} \<Rightarrow> 'b::real_normed_vector"
   assumes "\<And> i. (f i) differentiable (at t)"
