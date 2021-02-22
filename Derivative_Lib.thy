@@ -353,6 +353,24 @@ proof -
     using frechet_derivative_at by force
 qed
 
+lemma frechet_derivative_inverse: 
+  fixes f :: "_ \<Rightarrow> (_::real_normed_div_algebra)"
+  assumes "f differentiable at t" "f t \<noteq> 0"
+  shows "\<partial> (\<lambda>x. inverse (f x)) (at t) = (\<lambda>x. - (inverse (f t) * \<partial> f (at t) x * inverse (f t)))"
+proof -
+  obtain f' where f':"(f has_derivative f') (at t)"
+    using assms differentiable_def by blast
+  have fd: "frechet_derivative f (at t) = f'"
+    using f' frechet_derivative_at by auto
+
+  from has_derivative_compose[OF f' has_derivative_inverse']
+  have "((\<lambda>x. inverse (f x)) has_derivative (\<lambda>x. - (inverse (f t) * \<partial> f (at t) x * inverse (f t)))) (at t)"
+    by (simp add: fd assms(2))
+
+  thus ?thesis
+    using frechet_derivative_at by force
+qed
+
 lemma frechet_derivative_norm:
   fixes f :: "'a::{real_inner} \<Rightarrow> 'b::{real_inner}"
   assumes "f differentiable (at t)" "f t \<noteq> 0"
