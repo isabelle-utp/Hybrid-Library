@@ -371,6 +371,13 @@ proof -
     using frechet_derivative_at by force
 qed
 
+lemma frechet_derivative_divide:
+  fixes f :: "_ \<Rightarrow> (_::real_normed_field)"
+  assumes "f differentiable at t" "g differentiable at t" "g t \<noteq> 0"
+  shows "\<partial> (\<lambda>x. f x / g x) (at t) = (\<lambda>x. \<partial> f (at t) x / g t - f t * (\<partial> g (at t) x / (g t)\<^sup>2))"
+  by (simp add: divide_inverse frechet_derivative_mult frechet_derivative_inverse assms 
+                power2_eq_square mult.assoc vector_space_over_itself.scale_left_commute)
+
 lemma frechet_derivative_norm:
   fixes f :: "'a::{real_inner} \<Rightarrow> 'b::{real_inner}"
   assumes "f differentiable (at t)" "f t \<noteq> 0"
