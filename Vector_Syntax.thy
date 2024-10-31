@@ -144,9 +144,6 @@ code_datatype Vec
 lemma Vec_lookup: "(Vec xs :: 'a::zero^'m::nat)$i = ezlist CARD('m) xs ! nat_of i"
   by (auto simp add: Vec_def nth_append less_diff_conv)
 
-lemma Vec_lookup_list [code]: "(V :: 'a::zero^'b::nat)$n = vec_list V ! nat_of n"
-  by (metis Vec_lookup ezlist_vec_list vec_list_inverse)
-
 lemma Vec_lookup': "(Vec xs)$i = (if (nat_of i < length xs) then xs!nat_of i else 0)"
   apply (auto simp add: ezlist_def Vec_def nth_append less_diff_conv)
   apply (smt (verit) add_diff_inverse_nat add_less_cancel_left linorder_less_linear min.absorb3 nat_of_less_CARD nth_replicate order_less_trans)
@@ -165,6 +162,12 @@ lemma Vec_inverse [simp, code]:
   "vec_list (Vec V :: 'a::zero^'m::nat) = ezlist CARD('m) V"
   by (simp add: list_eq_iff_nth_eq vec_list_def Vec_def)
 
+lemma ezlist_vec_list [simp]: "ezlist CARD('b) (vec_list (V :: _^'b::nat)) = vec_list V"
+  by (metis Vec_inverse vec_list_inverse)
+
+lemma Vec_lookup_list [code]: "(V :: 'a::zero^'b::nat)$n = vec_list V ! nat_of n"
+  by (metis Vec_lookup ezlist_vec_list vec_list_inverse)
+
 lemma Vec_eq_list: "V = W \<longleftrightarrow> vec_list V = vec_list W"
   by (auto simp add: vec_list_def)
      (metis nat_of_inv nat_of_range vec_eq_iff)
@@ -181,11 +184,15 @@ lemma Vec_eq_iff:
 
 text \<open> Can we find a clever way to formulate these? \<close>
 
-lemma scaleR_Vec [code]:
-  "x *\<^sub>R (Vec V :: 'a::real_vector^'i::nat) = Vec (map (scaleR x) V)"
+lemma scaleR_Vec:
+  "x *\<^sub>R (Vec xs :: 'a::real_vector^'i::nat) = Vec (map (scaleR x) xs)"
   apply (auto simp add: Vec_def ezlist_def scaleR_vec_def fun_eq_iff simp add: less_diff_conv nth_append)
   apply (smt (verit, best) add_diff_inverse_nat add_less_cancel_left linorder_less_linear min.absorb3 nat_of_less_CARD nth_replicate order_less_trans scaleR_eq_0_iff)
   done
+
+lemma scaleR_Vec_list [code]:
+  "x *\<^sub>R (V :: 'a::real_vector^'i::nat) = Vec (map (scaleR x) (vec_list V))"
+  by (metis scaleR_Vec vec_list_inverse)
 
 lemma sum_nat_of: "(\<Sum>i\<in>(UNIV ::'b::nat set). f (nat_of i)) = (\<Sum>i = 0..<CARD('b). f i)"
   using bij_nat_of sum.reindex_bij_betw by blast  
@@ -203,14 +210,9 @@ proof -
   finally show ?thesis by simp
 qed
 
-lemma ezlist_vec_list [simp]: "ezlist CARD('b) (vec_list (V :: _^'b::nat)) = vec_list V"
-  by (metis Vec_inverse vec_list_inverse)
-
-(*
 lemma zero_Vec [code]:
   "(0 :: _^'b::nat) = Vec (replicate CARD('b) 0)"
   by (simp add: zero_vec_def vec_eq_iff Vec_lookup nth_ezlist)
-*)
 
 lemma inner_Vec_list [code]:                      
   "(V :: _^'b::nat) \<bullet> W = sum_list (map2 (\<bullet>) (vec_list V) (vec_list W))"
@@ -235,12 +237,29 @@ lemma minus_Vec: "(Vec xs :: _^'b::nat) - Vec ys = Vec (map2 (-) (ezlist CARD('b
 lemma minus_Vec_list [code]: "(V :: _^'b::nat) - W = Vec (map2 (-) (vec_list V) (vec_list W))"
   by (metis ezlist_vec_list minus_Vec vec_list_inverse)
 
+instantiation vec :: (real_normed_vector,finite) equal
+begin
+
+definition equal_vec :: "'a vec['b] \<Rightarrow> 'a vec['b] \<Rightarrow> bool" where
+"equal_vec x y = (x - y = 0)"
+
+instance 
+  by (intro_classes, simp add: equal_vec_def)
+
+end
+
 (* Set up the code generator for vectors, so we can compute cardinalties *)
 
 declare card_bit0 [code_unfold]
 declare card_bit1 [code_unfold]
 declare card_num0 [code_unfold]
 declare card_num1 [code_unfold]
+
+lemma zero_num1_code [code]: "(0::num1) = 1"
+  by simp
+
+lemma plus_num1_code [code]: "(x + y :: num1) = 1"
+  by simp
 
 lemma card_coset_enum [code]: "card (List.coset xs ::'a::enum set) = card (set Enum.enum - set xs)"
   by (simp add: enum_UNIV Compl_eq_Diff_UNIV)
@@ -296,6 +315,12 @@ translations
   "\<^bold>[x\<^bold>]" <= "CONST Vec [x]"
 
 term "Vector[1::real,2,3]"
+
+term "Vector[1::real]"
+
+value "2 *\<^sub>R Vector[1::real]"
+
+value "2 *\<^sub>R Vector[1::real,2,3]"
 
 value "Vector[1::real,2,3] + Vector[2,3,4]"
 
