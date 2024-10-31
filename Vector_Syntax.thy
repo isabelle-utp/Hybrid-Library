@@ -214,6 +214,10 @@ lemma zero_Vec [code]:
   "(0 :: _^'b::nat) = Vec (replicate CARD('b) 0)"
   by (simp add: zero_vec_def vec_eq_iff Vec_lookup nth_ezlist)
 
+lemma one_Vec [code]:
+  "(1 :: _^'b::nat) = Vec (replicate CARD('b) 1)"
+  by (simp add: vec_eq_iff Vec_lookup nth_ezlist)
+
 lemma inner_Vec_list [code]:                      
   "(V :: _^'b::nat) \<bullet> W = sum_list (map2 (\<bullet>) (vec_list V) (vec_list W))"
   by (metis ezlist_vec_list inner_Vec vec_list_inverse)

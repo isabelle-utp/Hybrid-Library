@@ -7,6 +7,7 @@ session "Hybrid-Library" = "Ordinary_Differential_Equations" +
     Derivative_Lib
     ODE_Cert
     Matrix_Syntax
+    Vector_Syntax
     Cont_Lens
   document_files
     "root.bib"
