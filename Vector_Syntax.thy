@@ -63,6 +63,9 @@ lemma nat_of_numeral' [simp]: "numeral n < CARD('a) \<Longrightarrow> nat_of (nu
 
 end
 
+lemma sum_numeral_nat: "sum f (UNIV :: 'a::nat set) = (\<Sum>j = 0..<CARD('a). f (of_nat' j))"
+  by (metis bij_betw_inv_into bij_nat_of sum.reindex_bij_betw)
+
 text \<open> Instances of the @{class nat} class for concrete numerals. \<close>
 
 abbreviation "Abs_bit0n \<equiv> (\<lambda> x. Abs_bit0 (int x))"
@@ -181,6 +184,11 @@ lemma Vec_eq_iff:
   apply (simp)
   apply (metis of_nat'_inv)+
   done
+
+lemma Vec_vec_nth:
+  assumes "length xs \<ge> CARD('n)" "n < CARD('n)"
+  shows "(Vec xs :: 'a::zero^'n::nat) $ of_nat' n = xs ! n"
+  using assms by (simp add: Vec_def ezlist_def)
 
 text \<open> Can we find a clever way to formulate these? \<close>
 
