@@ -1,7 +1,7 @@
 section \<open> Vector Syntax and Code Generation \<close>
 
 theory Vector_Syntax
-  imports "HOL-Analysis.Analysis"
+  imports Derivative_Lib "Differential_Dynamic_Logic.Lib"
 begin
 
 instantiation vec :: (zero, finite) default
@@ -137,6 +137,9 @@ lemma length_ezlist [simp]: "length (ezlist n xs) = n"
 lemma nth_ezlist: "i < n \<Longrightarrow> ezlist n xs ! i = (if i < length xs then xs ! i else 0)"
   by (auto simp add: ezlist_def nth_append)
 
+lemma ezlist_simp: "length xs = n \<Longrightarrow> ezlist n xs = xs"
+  by (simp add: list_eq_iff_nth_eq nth_ezlist)
+
 text \<open> Construct a vector from a list. \<close>
 
 definition Vec :: "'a::zero list \<Rightarrow> 'a^'m::nat" where
@@ -164,6 +167,12 @@ lemma vec_list_inverse [simp]: "Vec (vec_list V) = V"
 lemma Vec_inverse [simp, code]:
   "vec_list (Vec V :: 'a::zero^'m::nat) = ezlist CARD('m) V"
   by (simp add: list_eq_iff_nth_eq vec_list_def Vec_def)
+
+lemma vec_listE:
+  fixes v :: "'a::zero^'n::nat"
+  assumes "\<And> xs. \<lbrakk> v = Vec xs; length xs = CARD('n) \<rbrakk> \<Longrightarrow> P v"
+  shows "P v"
+  by (metis assms length_vec_list vec_list_inverse)
 
 lemma ezlist_vec_list [simp]: "ezlist CARD('b) (vec_list (V :: _^'b::nat)) = vec_list V"
   by (metis Vec_inverse vec_list_inverse)
@@ -217,6 +226,14 @@ proof -
     done
   finally show ?thesis by simp
 qed
+
+lemma axis_Vec:
+  fixes k :: "'m::nat"
+  shows "axis k x = Vec ((replicate CARD('m) 0)[nat_of k := x])"
+  apply (simp add: vec_eq_iff Vec_def ezlist_def vec_list_def comp_def axis_def)
+  apply (metis nat_of_inv nat_of_less_CARD nth_list_update_neq
+      nth_replicate)
+  done
 
 lemma zero_Vec [code]:
   "(0 :: _^'b::nat) = Vec (replicate CARD('b) 0)"
@@ -335,5 +352,16 @@ value "2 *\<^sub>R Vector[1::real]"
 value "2 *\<^sub>R Vector[1::real,2,3]"
 
 value "Vector[1::real,2,3] + Vector[2,3,4]"
+
+subsection \<open> Two dimensional vectors \<close>
+
+lemma Vec2_decomp_exists: "\<exists> x\<^sub>1 x\<^sub>2. x = Vector[x\<^sub>1, x\<^sub>2]"
+  apply (rule vec_listE)
+  apply (simp add: numeral_2_eq_2)
+  apply (metis (no_types, lifting) Suc_length_conv length_0_conv)
+  done
+
+lemma Vec2_caseE: "\<lbrakk> \<And> x\<^sub>1 x\<^sub>2. x = Vector[x\<^sub>1, x\<^sub>2] \<Longrightarrow> P x \<rbrakk> \<Longrightarrow> P x"
+  using Vec2_decomp_exists by blast
 
 end

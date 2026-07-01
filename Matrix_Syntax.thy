@@ -119,6 +119,26 @@ instance
      ,metis bit1.Rep_numeral card_bit1 int_ops(3) nat_int of_nat_mod)
 end
 
+(*
+subsubsection \<open> Matrix Lens \<close>
+
+definition mat_lens :: "'i \<Rightarrow> 'j \<Rightarrow> ('a \<Longrightarrow> 'a mat['i, 'j])" where
+[lens_defs]: "mat_lens i j = vec_lens j ;\<^sub>L vec_lens i"
+
+lemma mat_vwb_lens [simp]: "vwb_lens (mat_lens i j)"
+  by (simp add: mat_lens_def comp_vwb_lens)
+
+lemma mat_lens_indep [simp]: "\<lbrakk> i\<^sub>1 \<noteq> i\<^sub>2 \<or> j\<^sub>1 \<noteq> j\<^sub>2 \<rbrakk> \<Longrightarrow> mat_lens i\<^sub>1 j\<^sub>1 \<bowtie> mat_lens i\<^sub>2 j\<^sub>2"
+  by (simp add: mat_lens_def
+     ,metis lens_indep_left_comp lens_indep_left_ext lens_indep_right_ext vec_lens_indep vec_vwb_lens vwb_lens_mwb)
+
+lemma bounded_linear_mat_lens [simp]: "bounded_linear (get\<^bsub>mat_lens i k\<^esub>)"
+  by (simp add: mat_lens_def) 
+
+lemma mat_cont_lens [simp]: "cont_lens (mat_lens i j)"
+  by (simp add: mat_lens_def)
+*)
+
 text \<open> Construct a matrix from a list of lists. \<close>
 
 definition Mat :: "'a list list \<Rightarrow> 'a^'m::nat^'n::nat" where

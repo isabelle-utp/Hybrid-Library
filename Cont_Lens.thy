@@ -1,18 +1,18 @@
 section \<open> Lenses for Continuous Variables \<close>
 
 theory Cont_Lens
-  imports Optics.Optics "Matrix_Syntax"
+  imports Optics.Optics "Vector_Syntax"
 begin
 
 subsection \<open> Basic Lens Results \<close>
 
-lemma bounded_linear_fst_lens [simp]: "bounded_linear (get\<^bsub>fst\<^sub>L\<^esub>)"
+lemma bounded_linear_fst_lens [simp, bounded_linear]: "bounded_linear (get\<^bsub>fst\<^sub>L\<^esub>)"
   by (simp add: lens_defs bounded_linear_fst)
 
-lemma bounded_linear_snd_lens [simp]: "bounded_linear (get\<^bsub>snd\<^sub>L\<^esub>)"
+lemma bounded_linear_snd_lens [simp, bounded_linear]: "bounded_linear (get\<^bsub>snd\<^sub>L\<^esub>)"
   by (simp add: lens_defs bounded_linear_snd)
 
-lemma bounded_linear_lens_comp [simp]: 
+lemma bounded_linear_lens_comp [simp, bounded_linear]: 
   "\<lbrakk> bounded_linear (get\<^bsub>x\<^esub>); bounded_linear (get\<^bsub>y\<^esub>) \<rbrakk> \<Longrightarrow> bounded_linear (get\<^bsub>x;\<^sub>Ly\<^esub>)"
   by (simp add: lens_defs comp_def bounded_linear_compose)
 
@@ -22,8 +22,8 @@ text \<open> Continuous variables are modelled by lenses whose get and put funct
   bounded linear transformations between two vector spaces. \<close>
 
 locale cont_lens = vwb_lens +
-  assumes bounded_linear_get: "bounded_linear get"
-  and bounded_linear_put: "bounded_linear (\<lambda> (s, v). put s v)"
+  assumes bounded_linear_get [bounded_linear]: "bounded_linear get"
+  and bounded_linear_put [bounded_linear]: "bounded_linear (\<lambda> (s, v). put s v)"
 begin
 
 lemma has_derivative_put: "((\<lambda> (s, v). put s v) has_derivative (\<lambda> (s, v). put s v)) (at t within X)"
@@ -152,24 +152,6 @@ proof -
   show ?thesis
     by (intro_locales, auto intro: vec_upd_bounded_linear simp add: cont_lens_axioms_def vec_lens_def)
 qed
-
-subsubsection \<open> Matrix Lens \<close>
-
-definition mat_lens :: "'i \<Rightarrow> 'j \<Rightarrow> ('a \<Longrightarrow> 'a mat['i, 'j])" where
-[lens_defs]: "mat_lens i j = vec_lens j ;\<^sub>L vec_lens i"
-
-lemma mat_vwb_lens [simp]: "vwb_lens (mat_lens i j)"
-  by (simp add: mat_lens_def comp_vwb_lens)
-
-lemma mat_lens_indep [simp]: "\<lbrakk> i\<^sub>1 \<noteq> i\<^sub>2 \<or> j\<^sub>1 \<noteq> j\<^sub>2 \<rbrakk> \<Longrightarrow> mat_lens i\<^sub>1 j\<^sub>1 \<bowtie> mat_lens i\<^sub>2 j\<^sub>2"
-  by (simp add: mat_lens_def
-     ,metis lens_indep_left_comp lens_indep_left_ext lens_indep_right_ext vec_lens_indep vec_vwb_lens vwb_lens_mwb)
-
-lemma bounded_linear_mat_lens [simp]: "bounded_linear (get\<^bsub>mat_lens i k\<^esub>)"
-  by (simp add: mat_lens_def) 
-
-lemma mat_cont_lens [simp]: "cont_lens (mat_lens i j)"
-  by (simp add: mat_lens_def)
 
 subsubsection \<open> Executable Euclidean Space Lens \<close>
 
