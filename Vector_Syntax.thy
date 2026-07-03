@@ -330,7 +330,7 @@ end
 
 syntax 
   "_Vector"  :: "logic \<Rightarrow> logic" ("Vector")
-  "_VecList" :: "args \<Rightarrow> logic" ("\<^bold>[_\<^bold>]")
+  "_VecList" :: "args \<Rightarrow> logic" ("V[_]")
 
 parse_translation \<open> 
 let fun vector_tr [t] = Vector_Utils.proc_vector (Term_Position.strip_positions t)
@@ -340,8 +340,8 @@ let fun vector_tr [t] = Vector_Utils.proc_vector (Term_Position.strip_positions 
 \<close>
 
 translations
-  "\<^bold>[x\<^bold>]" => "Vector[x]"
-  "\<^bold>[x\<^bold>]" <= "CONST Vec [x]"
+  "V[x]" => "Vector[x]"
+  "V[x]" <= "CONST Vec [x]"
 
 term "Vector[1::real,2,3]"
 
