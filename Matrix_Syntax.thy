@@ -202,6 +202,17 @@ text \<open> The following code infers the dimension of the list of lists, check
   a matrix, and then uses these to construct the type of the matrix -- providing concrete numeral
   dimensions. \<close>
 
+nonterminal mrows
+
+syntax 
+  "_Matrix"  :: "logic \<Rightarrow> logic" ("Matrix")
+  "_MatList" :: "mrows \<Rightarrow> logic" ("M[_]")
+  "_mrow"    :: "args \<Rightarrow> mrows" ("_")
+  "_mrows"   :: "args \<Rightarrow> mrows \<Rightarrow> mrows" ("_;/ _") 
+  "_matlist" :: "mrows \<Rightarrow> logic"
+  "_showmat" :: "mrows \<Rightarrow> logic"
+  "_showrow" :: "args \<Rightarrow> logic"
+
 ML \<open>
 
 structure Matrix_Utils =
@@ -219,7 +230,6 @@ struct
             let val (q, r) = Integer.div_mod n 2;
             in Type (mk_bit r, [bin_of q]) end;
       in bin_of n end;
-
 
 fun dest_list_syn (Const (\<^const_syntax>\<open>List.list.Nil\<close>, _)) = []
   | dest_list_syn (Const (\<^const_syntax>\<open>List.list.Cons\<close>, _) $ t $ u) = t :: dest_list_syn u
@@ -245,43 +255,38 @@ fun dest_list_syn (Const (\<^const_syntax>\<open>List.list.Nil\<close>, _)) = []
 end  
 \<close>
 
-nonterminal mrows
-
-syntax 
-  "_Matrix"  :: "logic \<Rightarrow> logic" ("Matrix")
-  "_MatList" :: "args \<Rightarrow> logic" ("M[_]")
-
 parse_translation \<open> 
-let fun matrix_tr [t] = Matrix_Utils.proc_matrix (Term_Position.strip_positions t)
+let fun matrix_tr [t] = (Matrix_Utils.proc_matrix (Term_Position.strip_positions t))
       | matrix_tr _ = raise Match in
   [(\<^syntax_const>\<open>_Matrix\<close>, K matrix_tr)] 
   end
 \<close>
 
 translations
-  "M[x]" == "Matrix[x]"
-  "M[x]" <= "CONST Mat [x]"
-
-
-text \<open> We can construct matrices either using the form @{term "Matrix[[1,2],[3,4]]"}. 
-  Further examples are given below. \<close>
+  "_matlist (_mrows x xs)" => "_list x # _matlist xs"
+  "_matlist (_mrow x)" => "_list x # []"
+  "_MatList xs" => "_Matrix (_matlist xs)"
+  "_MatList (_showmat xs)" <= "CONST Mat xs"
+  "_mrow (_showrow x)" <= "_showmat (x # [])"
+  "_mrows (_showrow x) (_showmat xs)" <= "_showmat (x # xs)"
+  "x" <= "_showrow (x # [])"
+  "_args x (_showrow xs)" <= "_showrow (x # xs)"
 
 term "Matrix[[1::real,2]]"
 
-term "M[[1 , 9, -13], 
-       [20, 6, 6  ]]" 
+term "M[1,  9, -13 
+       ;20, 6, 6]" 
 
-term "(**)"
+term "M[1::real,2] ** M[1; 1]"
 
-term "Matrix[[1::real,2]] ** Matrix[[1],[1]]"
+term "M[1,2,3; 1,2,3]"
 
-term "M[[1,2,3], [1,2,3]]"
+term "M[1, 2]\<^sup>T" 
+term "M[1; 2]"
 
-term "M[[1, 2]]\<^sup>T = M[[1], [2]]"
-
-lemma "M[[1,2]]$0$0 = 1" "M[[1,2]]$0$1 = 2"
+lemma "M[1,2]$0$0 = 1" "M[1,2]$0$1 = 2"
   by (simp_all)
 
-term "M[[1::real,2],[3,4]] *v V[6,7]"
+term "M[1::real,2;3,4] *v V[6,7]"
 
 end
